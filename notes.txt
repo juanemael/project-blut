@@ -1,0 +1,26 @@
+PROJECT SUBMISSION GUIDELINES
+=============================
+
+hey folks! here are the project submission requirements.
+
+DEADLINE
+========
+  - the project should be submitted on or before the deadline. the deadline is three weeks since
+    this document is shared.
+
+AVAILABILITY
+============
+  - the project should be publicly available as a version-controlled repository in GitHub, etc.
+
+  - the project should be a cabal. 
+
+COMPLEXITY
+==========
+  - the project should be sufficiently complex.
+  - please approve your idea before you start working on it so we could suggest any necessary
+    extensions.
+
+PRESENTATION
+============
+  - the project should be presented in the class with the learners should go through the live
+    demonstration of the project and also explain the code.
