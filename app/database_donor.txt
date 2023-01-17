@@ -1,1 +1,4 @@
-qwe 2 2 2 2 False False False False True True True True 
+1 asd 20 50 16 True True True True True True True True True
+2 tyu 5 20 20 False False False False False False False False False
+3 qwe 21 60 16 False False False False False False False False False
+4 ret 2 2 2 False False False False False False False False False
