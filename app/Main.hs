@@ -42,7 +42,8 @@ userMenu = do
     putStrLn  "(Donor Menu) Pilih menu:"
     putStrLn "1. Manage Donor Information "
     putStrLn "2. Show all of blood donor information"
-    putStrLn "3. Logout"
+    putStrLn "3. "
+    putStrLn "4. Logout"
     putStrLn "---------------------------------------------"
     putStr "Insert your option (1,2,3): "
     menuOption <- getLine
@@ -52,6 +53,8 @@ userMenu = do
         "2" -> do
             ioDonorToListDonor 
         "3" -> do
+            ioDonorToListDonor 
+        "4" -> do
             loginMenu
 insertDonor = do 
     putStrLn "Insert donor ID number (NIK) (Number): "
@@ -95,9 +98,10 @@ insertDonor = do
   
 donorMenu = do
     putStrLn  "(Donor Menu) Pilih menu:"
-    putStrLn  "1. Insert Donor Information:"
-    putStrLn  "2. Show Selected Donor Information:"
-    putStrLn  "3. Delete Donor Information:"
+    putStrLn  "1. Insert Donor Information"
+    putStrLn  "2. Show Selected Donor Information"
+    putStrLn  "3. Delete Donor Information"
+    putStrLn  "4. Logout"
     putStrLn "---------------------------------------------"
     putStr "Insert your option (1,2,3): "
     menuOption <- getLine
@@ -108,9 +112,12 @@ donorMenu = do
             putStr "Insert Donor ID Number (NIK): " 
             nik <- getLine
             printSelectedDonor $ read nik
-        -- "3" -> do
-            -- deleteDonor
         "3" -> do
+            ioDonorToListDonor
+            putStr "Select Donor ID Number to be Deleted (NIK): " 
+            nik <- getLine
+            combineDeleteToWrite $ read nik
+        "4" -> do
             loginMenu
         -- "2. Validate your patient information " -> do
         --     registerPatient
@@ -184,19 +191,16 @@ age :: Int , weight :: Int, hemoglobinLevel :: Int,
 tattoo :: String, surgery :: String, alcohol ::  String, caffeine :: String,  hiv :: String,
 hepatitis :: String, syphilis :: String, malaria :: String, verified :: String } deriving (Show,Eq)
 type ListDonor = [Donor]
+
 getDonorInfo :: IO [String]
 getDonorInfo =  do
     donor <- readFile "database_donor.txt"
     let line_donor = lines donor
-    -- return $ head line_donor
     return line_donor
 
--- getDonorInfoArr :: [String] -> IO ()
 getDonorInfoArr [] = []
 getDonorInfoArr (x:xs) = do 
     parseDonor x ++ getDonorInfoArr xs
-    -- return a
-    -- : getDonorInfoArr xs
 
 stringToIODonor = do
     stringVar <- getDonorInfo3
@@ -211,7 +215,7 @@ printAllDonor :: ListDonor -> IO ()
 printAllDonor list = do 
     putStrLn ""
     putStrLn "---------------------------------------------------------------- --------------------- Report Data for All Donor --------------------- ----------------------------------------------------------------\n" >>
-       putStrLn "\n| ID.\t| Name\t| Age\t| Weight\t| Hemoglobin\t| Tattooo\t| Surgery\t| Alcohol\t| Caffeine\t| Hiv\t| Hepatitis\t| Syphilis\t| Malaria\t| Verified\t|" >>
+       putStrLn "\n| ID.\t| Name                      \t\t\t| Age\t| Weight\t| Hemoglobin\t| Tattooo\t| Surgery\t| Alcohol\t| Caffeine\t| Hiv\t| Hepatitis\t| Syphilis\t| Malaria\t| Verified\t|" >>
 
         recDonorData list
 
@@ -221,10 +225,10 @@ lookupParameter (Donor {nik = nik, name = name, age = age, weight = weight, hemo
     alcohol = alcohol, caffeine = caffeine, hiv = hiv, hepatitis = hepatitis, syphilis = syphilis, malaria = malaria, verified = verified}))
 
 printSelectedDonor nik = do 
-    -- replicate 12 '='
-    let a = deleteDonor nik 
-    b <- a
-    printSelectedDonor2 b
+    let res = deleteDonor nik 
+    paramDonor <- res
+    printSelectedDonor2 paramDonor
+
 printSelectedDonor2 (Donor {nik = nik, name = name, age = age, weight = weight, hemoglobinLevel = hemoglobinLevel, tattoo = tattoo, surgery = surgery,
     alcohol = alcohol, caffeine = caffeine, hiv = hiv, hepatitis = hepatitis, syphilis = syphilis, malaria = malaria, verified = verified}) = 
         do
@@ -263,12 +267,11 @@ chooseDonor nik = do
     let arr2 = lookupParameterArray arr
     return $ lookup nik arr2
 
-
 deleteDonor a = do
     result <- chooseDonor a
     case result of 
         Just a -> return a
-        Nothing -> return $ Donor {nik = 1, name = "asd", age = 20, weight = 50, hemoglobinLevel = 16, tattoo = "True", surgery = "True", alcohol = "True", caffeine = "True", hiv = "True", hepatitis = "True", syphilis = "True", malaria = "True", verified = "True"}
+        Nothing -> return $ Donor {nik = 0, name = "asd", age = 0, weight = 0, hemoglobinLevel = 0, tattoo = "True", surgery = "True", alcohol = "True", caffeine = "True", hiv = "True", hepatitis = "True", syphilis = "True", malaria = "True", verified = "True"}
 
 lookupParameterArray [] = []
 lookupParameterArray (x:xs) = do
@@ -287,12 +290,6 @@ ioDonorToDeleteDonor var = do
 writeDeletedData [] = [] 
 writeDeletedData (x:xs) = x  ++ writeDeletedData xs
 
-writeDeletedDataFinale arr = do
-    -- let concatStr = writeDeletedData arr
-    -- let res = writeFile "database_donor.txt" concatStr 
-    return arr
-
-
 combineDelete var = do
     arr <- ioDonorToDeleteDonor var
     let res = dataToString2 arr
@@ -302,14 +299,13 @@ combineDeleteToWrite var = do
     arrVar <- combineDelete var
     -- let concatStr = writeDeletedData arrVar
     let concatStr = writeDeletedData arrVar
-    appendFile "database_donor.txt" concatStr 
+    print concatStr
+    writeFile "database_donor.txt" concatStr
     putStrLn "Data has been successfully deleted and saved! "
     -- removeFile "database_donor.txt"
     -- renameFile "database_donor2.txt" "database_donor3.txt"
     -- putStrLn test
 
-    
--- dataToString :: ListDonor -> IO (String) 
 dataToString Donor {nik = nik, name = name, age = age, weight = weight, hemoglobinLevel = hemoglobinLevel, tattoo = tattoo, surgery = surgery,
     alcohol = alcohol, caffeine = caffeine, hiv = hiv, hepatitis = hepatitis, syphilis = syphilis, malaria = malaria, verified = verified} = 
         return (show nik ++ " " ++ name ++ " " ++ show age ++ " " ++ show weight ++ " " ++ show hemoglobinLevel ++ " " ++  tattoo ++ " " ++ surgery ++ " " ++
@@ -319,12 +315,9 @@ dataToString2 [] = []
 dataToString2 (x:xs) = 
         dataToString x ++ dataToString2 xs
 
--- writeDeletedDonorDataToDB = do 
---     writeFile "database_donor.txt" 
 divideDonorData (Donor {nik = nik, name = name, age = age, weight = weight, hemoglobinLevel = hemoglobinLevel, tattoo = tattoo, surgery = surgery,
     alcohol = alcohol, caffeine = caffeine, hiv = hiv, hepatitis = hepatitis, syphilis = syphilis, malaria = malaria, verified = verified}) = do
-        putStrLn ("\n| " ++ show nik ++ "\t| " ++ name ++ "\t| " ++ show age ++ "\t| " ++ show weight ++ "\t\t| " ++ show hemoglobinLevel ++ " \t\t| " ++ tattoo ++ "\t\t| " ++ surgery ++ "\t\t| " ++ alcohol ++ "\t\t| " ++ caffeine ++ "\t\t| " ++ hiv ++ "\t| " ++ hepatitis ++ "\t\t| " ++ syphilis ++ "\t\t| " ++ malaria ++ "\t\t| " ++ verified ++ "\t\t| ")
-
+        putStrLn ("\n| " ++ show nik ++ "\t| " ++ name ++ "                      \t\t\t| " ++ show age ++ "\t| " ++ show weight ++ "\t\t| " ++ show hemoglobinLevel ++ " \t\t| " ++ tattoo ++ "\t\t| " ++ surgery ++ "\t\t| " ++ alcohol ++ "\t\t| " ++ caffeine ++ "\t\t| " ++ hiv ++ "\t| " ++ hepatitis ++ "\t\t| " ++ syphilis ++ "\t\t| " ++ malaria ++ "\t\t| " ++ verified ++ "\t\t| ")
 
 recDonorData :: [Donor] -> IO ()
 recDonorData [] = print ""
@@ -334,33 +327,32 @@ recDonorData (x:xs) = do
 
 getDonorInfoArr2 donor = do
     ioToDonorArr <- stringToIODonor
-    let a = donor ++ ioToDonorArr
-    return a
-
-getDonorInfo4 = do
-    a <- getDonorInfo2
-    -- let b = parseDonor a
-    return $ a
+    let res = donor ++ ioToDonorArr
+    return res
 
 getDonorInfo2 = do
     text <- readFile "database_donor.txt"
-    let a = words text
+    let res = words text
     putStrLn("get string with words: ")
-    return a
+    return res
 
 getDonorInfo3 = do
-    text <- readFile "database_donor.txt"
-    -- handle <- openFile "database_donor.txt" ReadMode
-    -- contents <- hGetContents handle
-    let b = lines text
+    renameFile "database_donor.txt" "database_donor2.txt"
+    text <- readFile "database_donor2.txt"
+    let res = lines text
+    let ioDonor = getDonorInfoArr res
+    let arrVar = dataToString2 ioDonor
+    let concatStr = writeDeletedData arrVar
+    writeFile "database_donor.txt" concatStr
     putStrLn("get string with lines: ")
-    -- putStrLn(show b)
-    return b
+    print res
+    return res
 
--- append :: [Int] -> [Int]
--- append = concatMap digs
-
--- digs :: Integral x => x -> [x]
--- digs 0 = []
--- digs x = digs (x `div` 10) ++ [x `mod` 10]
--- "1 bnvgnf 20 50 16 True True True True True True True True True\n","4 ret 2 2 2 False False False False False False False False False\n"
+stringToIODonorDatabase2 var = do
+    stringVar <- getDonorInfo3
+    let ioDonor = getDonorInfoArr stringVar
+    let arrVar = dataToString2 ioDonor
+    -- let concatStr = writeDeletedData arrVar
+    let concatStr = writeDeletedData arrVar
+    writeFile "database_donor.txt" concatStr
+    combineDeleteToWrite var
