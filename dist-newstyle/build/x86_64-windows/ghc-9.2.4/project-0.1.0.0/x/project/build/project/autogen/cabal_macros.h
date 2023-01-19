@@ -20,16 +20,26 @@
   (major1) == 4 && (major2) <  16 || \
   (major1) == 4 && (major2) == 16 && (minor) <= 3)
 #endif /* MIN_VERSION_base */
-/* package mtl-2.3.1 */
-#ifndef VERSION_mtl
-#define VERSION_mtl "2.3.1"
-#endif /* VERSION_mtl */
-#ifndef MIN_VERSION_mtl
-#define MIN_VERSION_mtl(major1,major2,minor) (\
-  (major1) <  2 || \
-  (major1) == 2 && (major2) <  3 || \
-  (major1) == 2 && (major2) == 3 && (minor) <= 1)
-#endif /* MIN_VERSION_mtl */
+/* package bytestring-0.11.4.0 */
+#ifndef VERSION_bytestring
+#define VERSION_bytestring "0.11.4.0"
+#endif /* VERSION_bytestring */
+#ifndef MIN_VERSION_bytestring
+#define MIN_VERSION_bytestring(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  11 || \
+  (major1) == 0 && (major2) == 11 && (minor) <= 4)
+#endif /* MIN_VERSION_bytestring */
+/* package directory-1.3.8.0 */
+#ifndef VERSION_directory
+#define VERSION_directory "1.3.8.0"
+#endif /* VERSION_directory */
+#ifndef MIN_VERSION_directory
+#define MIN_VERSION_directory(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  3 || \
+  (major1) == 1 && (major2) == 3 && (minor) <= 8)
+#endif /* MIN_VERSION_directory */
 /* package random-1.2.1.1 */
 #ifndef VERSION_random
 #define VERSION_random "1.2.1.1"

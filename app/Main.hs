@@ -31,6 +31,8 @@ type ListAdmin = [Admin]
 
 mainMenu = do
     putStrLn  "(Main Menu) Pilih menu:"
+    putStrLn "1. Register Account"
+    putStrLn "2. Login Account"
     menuOption <- getLine
     case menuOption of 
         "1" -> do
@@ -42,8 +44,7 @@ userMenu = do
     putStrLn  "(Donor Menu) Pilih menu:"
     putStrLn "1. Manage Donor Information "
     putStrLn "2. Show all of blood donor information"
-    putStrLn "3. "
-    putStrLn "4. Logout"
+    putStrLn "3. Logout"
     putStrLn "---------------------------------------------"
     putStr "Insert your option (1,2,3): "
     menuOption <- getLine
@@ -53,8 +54,6 @@ userMenu = do
         "2" -> do
             ioDonorToListDonor 
         "3" -> do
-            ioDonorToListDonor 
-        "4" -> do
             loginMenu
 insertDonor = do 
     putStrLn "Insert donor ID number (NIK) (Number): "
@@ -127,12 +126,40 @@ loginMenu = do
     usernameAdmin <- getLine
     putStrLn "Please insert your password: "
     passwordAdmin <- getLine
+
     -- readFile "database_admin.txt"
-    -- admin <- readFile "./app/database_admin.txt" 
+    -- donor <- readFile "database_donor.txt"
+    -- let line_donor = lines donor
+    -- return line_donor
+    -- admin <- readFile "database_admin.txt" 
     -- putStrLn $ readFile "database_admin.txt"
     -- print $ words admin
     -- let x = words admin
     userMenu
+
+parseAdmin :: String -> [Admin]
+parseAdmin content = do
+    [ email', username', password' ] <- words <$> lines content
+    -- Just age'' <- return $ readMaybe age'
+    -- Just nik'' <- return $ readMaybe nik'
+    -- Just weight'' <- return $ readMaybe weight'
+    -- Just hemoglobinLevel'' <- return $ readMaybe hemoglobinLevel'
+    -- verified'' <- if verified' == "True" || verified' == "true" || verified' == "TRUE" then return True else return False
+    return (Admin { email = email', username = username', password = password' })
+
+getAdminInfoArr [] = []
+getAdminInfoArr (x:xs) = do 
+    parseAdmin x ++ getAdminInfoArr xs
+
+stringToIOAdmin = do
+    stringVar <- getAdminInfo
+    let ioAdmin = getAdminInfoArr stringVar
+    return ioAdmin
+
+getAdminInfo = do
+    text <- readFile "database_admin.txt"
+    let res = lines text
+    return res
 
 registerMenu :: IO ()
 registerMenu = do
