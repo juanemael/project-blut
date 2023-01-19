@@ -1,6 +1,12 @@
 import System.Random 
+import System.Directory
 import Text.Read (readMaybe)
 import Control.Monad.Trans.Maybe (MaybeT (MaybeT, runMaybeT))
+import GHC.IO.Handle (hClose,hGetContents)
+import Control.Monad (when)
+import System.IO.Unsafe 
+import GHC.IO.IOMode (IOMode(ReadMode))
+import System.IO  
 
 main :: IO ()
 main = mainMenu
@@ -48,8 +54,8 @@ userMenu = do
         "3" -> do
             loginMenu
 insertDonor = do 
-    putStrLn "Insert donor number ID (Number): "
-    donorID <- getLine
+    putStrLn "Insert donor ID number (NIK) (Number): "
+    nik <- getLine
     putStrLn  "Insert donor name (Text):"
     donorName <- getLine
     putStrLn  "Insert donor age (Number):"
@@ -78,54 +84,19 @@ insertDonor = do
     -- if(read donorHemoglogbin < 14 || read donorHemoglogbin > 18 || read donorBloodPressure < 120 || read donorWeight < 45 || read donorAge < 17 || read donorAge > 65 || donorSurgery == "False" || donorTattoo == "False" || donorAlcohol == "False" || donorCaffeine == "False" || donorHiv == "False" || donorHepatitis == "False" || donorSyphilis == "False" || donorMalaria == "False" ) 
     if(read donorHemoglogbin < 14 || read donorHemoglogbin > 18 || read donorWeight < 45 || read donorAge < 17 || read donorAge > 65 || donorSurgery == "False" || donorTattoo == "False" || donorAlcohol == "False" || donorCaffeine == "False" || donorHiv == "False" || donorHepatitis == "False" || donorSyphilis == "False" || donorMalaria == "False" ) 
         then 
-            appendFile "./database_donor.txt" (donorID ++ " " ++ donorName ++ " " ++ donorAge ++ " " ++ donorWeight ++ " " ++ donorHemoglogbin ++ " " ++  donorTattoo ++ " " ++ donorSurgery ++ " " ++
+            appendFile "./database_donor.txt" (nik ++ " " ++ donorName ++ " " ++ donorAge ++ " " ++ donorWeight ++ " " ++ donorHemoglogbin ++ " " ++  donorTattoo ++ " " ++ donorSurgery ++ " " ++
                 donorAlcohol ++ " " ++ donorCaffeine ++ " "  ++ donorHiv ++ " " ++ donorHepatitis ++ " " 
                 ++ donorSyphilis  ++ " " ++ donorMalaria ++ " " ++ "False" ++ "\n")
     else 
-         appendFile "./database_donor.txt" (donorID ++ " " ++ donorName ++ " " ++ donorAge ++ " " ++ donorWeight ++ " " ++ donorHemoglogbin ++ " " ++ donorTattoo ++ " " ++ donorSurgery ++ " " ++
+         appendFile "./database_donor.txt" (nik ++ " " ++ donorName ++ " " ++ donorAge ++ " " ++ donorWeight ++ " " ++ donorHemoglogbin ++ " " ++ donorTattoo ++ " " ++ donorSurgery ++ " " ++
                 donorAlcohol ++ " " ++ donorCaffeine ++ " "  ++ donorHiv ++ " " ++ donorHepatitis ++ " " 
                 ++ donorSyphilis  ++ " " ++ donorMalaria ++ " " ++ "True" ++ "\n")
-
--- if(donorMalaria == True) then     appendFile "./app/database_donor.txt" ( donorID ++ " " ++ donorName ++ " " ++ donorAge ++ " " ++ donorWeight ++ " " ++ donorTattoo ++ " " ++ donorSurgery ++ " " ++
---  donorAlcohol ++ " " ++ donorCaffeine ++ " " ++ donorBloodPressure ++ " " ++ donorHemoglogbin  ++ " " ++ donorHiv ++ " " ++ donorHepatitis ++ " " 
---  ++ donorSyphilis  ++ " " ++ donorMalaria ++ " " ++ verified ++ "\n") else 
-    -- appendFile "./database_donor.txt" (donorID ++ " " ++ donorName ++ " " ++ donorAge ++ " " ++ donorWeight ++ " " ++ donorTattoo ++ " " ++ donorSurgery ++ " " ++
-    --     donorAlcohol ++ " " ++ donorCaffeine ++ " " ++ donorBloodPressure ++ " " ++ donorHemoglogbin  ++ " " ++ donorHiv ++ " " ++ donorHepatitis ++ " " 
-    --     ++ donorSyphilis  ++ " " ++ donorMalaria ++ " " ++ "True" ++ "\n")
     userMenu
   
--- randomizeID = x <- randomRIO (0,10)
---     print x 
-
-test a = do 
-    print a
-
--- readVerified :: MaybeT IO Bool 
-readTattoo tattooStatus  = do
-    if(tattooStatus == "False") 
-        then return $ Just "True"
-        else return Just "False"
-
-readSurgery surgeryStatus  = do
-    if(surgeryStatus == "False") 
-        then return $ Just "True"
-        else return Just "False"
-
-readVerified :: [Char] -> [Char] -> String -> String -> String-> String-> String-> String-> String ->  String
-readVerified surgeryStatus tattooStatus alcoholStatus caffeineStatus hivStatus hepatitisStatus syphilisStatus malariaStatus = do
-    if(surgeryStatus == "False" || tattooStatus == "False" || alcoholStatus == "False" || caffeineStatus == "False" || hivStatus == "False" || hepatitisStatus == "False" || syphilisStatus == "False" || malariaStatus == "False" ) 
-        then return "True"
-        else return "False"
--- readVerified surgeryStatus  = do
---     if(surgeryStatus == "False" ) 
---         then return $ Just "True"
---         else return Nothing
-
-
 donorMenu = do
     putStrLn  "(Donor Menu) Pilih menu:"
     putStrLn  "1. Insert Donor Information:"
-    putStrLn  "2. Update Donor Information:"
+    putStrLn  "2. Show Selected Donor Information:"
     putStrLn  "3. Delete Donor Information:"
     putStrLn "---------------------------------------------"
     putStr "Insert your option (1,2,3): "
@@ -133,11 +104,13 @@ donorMenu = do
     case menuOption of
         "1" -> do
             insertDonor
-        -- "2" -> do
-            -- updateDonor
+        "2" -> do
+            putStr "Insert Donor ID Number (NIK): " 
+            nik <- getLine
+            printSelectedDonor $ read nik
         -- "3" -> do
             -- deleteDonor
-        "4" -> do
+        "3" -> do
             loginMenu
         -- "2. Validate your patient information " -> do
         --     registerPatient
@@ -173,114 +146,6 @@ prompt x = do
     >> getLine 
     >>= \a -> return (putStrLn ("Your " ++ x ++ " is: " ++ a))
 
--- validateDonor = do
---     a <- getDonorInfo
---     -- print $ words a
---     let b  = splitAt 1 a
---     -- print $ map b
---     print b
--- name :: String, 
--- age :: Int , weight :: Int, bloodPressure :: Int, hemoglobinLevel :: Int, 
--- tattoo :: Bool, surgery :: Bool, alcohol ::  Bool, caffeine :: Bool,  hiv :: Bool,
--- hepatitis :: Bool, syphilis :: Bool, malaria :: Bool, verified :: Bool
-
--- validateDonor Donor {name = nameStatus, age = ageStatus , weight = weightStatus, bloodPressure = bloodPressureStatus, hemoglobinLevel = hemoglobinLevelStatus , 
--- tattoo = tattooStatus, surgery = surgeryStatus, alcohol = alcoholStatus, caffeine = caffeineStatus, hiv = hivStatus,
--- hepatitis = hepatitisStatus, syphilis = syphilisStatus, malaria = malariaStatus, verified = False} = do
---     if (validateAge ageStatus == False || validateWeight weightStatus == False || validateBloodPressure bloodPressureStatus == False || 
---         validateHemoglobinLevel hemoglobinLevelStatus == False || validateTattoo tattooStatus == False ||
---         validateSurgery surgeryStatus == False || validateAlcohol alcoholStatus == False || validateCaffeine caffeineStatus == False || validateHIV hivStatus  == False||
---         validateHepatitis hepatitisStatus == False || validateSyphilis syphilisStatus == False || validateMalaria malariaStatus == False )
---         then return False
---             -- let x = Murid{verified = False}
---             --     return x
---     else
---         return True
-        -- let x = Murid{verified = False}
-        --     return x
-
--- validateName (Donor {name = name, verified = verified}) = do
---     if 
-
-validateAge age = 
-    if (age < 17 || age > 65) then False else True
-
-validateWeight weight =
-    if (weight < 45) then False else True
-
-validateHemoglobinLevel hemoglobinLevel = do
-    if (hemoglobinLevel < 14  || hemoglobinLevel > 18) then
-        False
-    else True
-validateTattoo tattoo = do
-    if (tattoo == False) then
-        False
-    else True
-validateSurgery surgery = do
-    if (surgery == False) then 
-        False
-    else True
-
-validateAlcohol alcohol = do
-    if (alcohol == False) then 
-        False
-    else True
-
-validateCaffeine caffeine = do
-    if (caffeine == False) then 
-        False
-    else True
-
-validateHIV hiv = do
-    if (hiv == False) then 
-        False
-    else True
-
-validateHepatitis hepatitis = do
-    if (hepatitis == False) then 
-        False
-    else True
-
-validateSyphilis hepatitis = do
-    if (hepatitis == False) then 
-        False
-    else True
-
-validateMalaria malaria = do
-    if (malaria == False) then 
-        False
-    else True
-    
-
--- getDonorInfoNameText =  do
---     a <- getDonorInfo
---     let b  = words a
---     return $ head b
-
--- getDonorInfoIntBool =  do
---     a <- getDonorInfo
---     let b  = words a
---     return $ tail b
--- getDonorInfoIntBool =  do
---     a <- getDonorInfo
---     let b  = words a
---     return $ tail b
-
--- getDonorPattern [] = []
--- getDonorPattern (x:xs) 
---     | x > 0 = x : xs 
---     | (x == True || x == False) = getDonorPattern [] 
---     | otherwise = getDonorPattern xs
--- getDonorPattern _ = if(x >0) then x : xs else getDonorPattern xs
--- getDonorInfoIO :: IO [Donor]
--- getDonorInfoIO =  do
---     donor <- readFile "database_donor.txt"
---     let line_donor = lines donor
---     return $ head line_donor
-
--- arrayToObject :: [a] -> a
-arrayToObject (x:xs) = x
-
 -- ioToObject = do 
 --     donorObject <- validateDonor2 
 --     let object = validateDonor2a donorObject
@@ -302,37 +167,22 @@ arrayToObject (x:xs) = x
 
 validateDonor2a (x:xs) = x
 
-validateDonor3 a = arrayToObject a >>= \b -> b
-
 parseDonor :: String -> [Donor]
 parseDonor content = do
-    [donor_id', name', age', weight', hemoglobinLevel', tattoo', surgery', alcohol', caffeine', hiv', hepatitis', syphilis', malaria', verified' ] <- words <$> lines content
+    [nik', name', age', weight', hemoglobinLevel', tattoo', surgery', alcohol', caffeine', hiv', hepatitis', syphilis', malaria', verified' ] <- words <$> lines content
     Just age'' <- return $ readMaybe age'
-    Just donor_id'' <- return $ readMaybe donor_id'
+    Just nik'' <- return $ readMaybe nik'
     Just weight'' <- return $ readMaybe weight'
     Just hemoglobinLevel'' <- return $ readMaybe hemoglobinLevel'
-    tattoo'' <- if tattoo' == "True" || tattoo' == "true" || tattoo' == "TRUE" then return True else return False
-    surgery'' <- if surgery' == "True" || surgery' == "true" || surgery' == "TRUE" then return True else return False
-    alcohol'' <- if alcohol' == "True" || alcohol' == "true" || alcohol' == "TRUE" then return True else return False
-    caffeine'' <- if caffeine' == "True" || caffeine' == "true" || caffeine' == "TRUE" then return True else return False
-    hiv'' <- if hiv' == "True" || hiv' == "true" || hiv' == "TRUE" then return True else return False
-    hepatitis'' <- if hepatitis' == "True" || hepatitis' == "true" || hepatitis' == "TRUE" then return True else return False
-    syphilis'' <- if syphilis' == "True" || syphilis' == "true" || syphilis' == "TRUE" then return True else return False
-    malaria'' <- if malaria' == "True" || malaria' == "true" || malaria' == "TRUE" then return True else return False
-    verified'' <- if verified' == "True" || verified' == "true" || verified' == "TRUE" then return True else return False
-    return (Donor {donor_id = donor_id'', name =name', age = age'' , weight = weight'', hemoglobinLevel = hemoglobinLevel'', 
+    -- verified'' <- if verified' == "True" || verified' == "true" || verified' == "TRUE" then return True else return False
+    return (Donor {nik = nik'', name =name', age = age'' , weight = weight'', hemoglobinLevel = hemoglobinLevel'', 
                    tattoo = tattoo', surgery = surgery', alcohol = alcohol', caffeine = caffeine',  hiv = hiv',
                    hepatitis = hepatitis', syphilis = syphilis', malaria = malaria', verified = verified' })
     
-    -- return (Donor {donor_id = donor_id'', name =name', age = age'' , weight = weight'', hemoglobinLevel = hemoglobinLevel'', 
-    --                tattoo = tattoo'', surgery = surgery'', alcohol = alcohol'', caffeine = caffeine'',  hiv = hiv'',
-    --                hepatitis = hepatitis'', syphilis = syphilis'', malaria = malaria'', verified = verified'' })
-    
-
-data Donor = Donor {donor_id :: Int, name :: String, 
+data Donor = Donor {nik :: Int, name :: String, 
 age :: Int , weight :: Int, hemoglobinLevel :: Int, 
 tattoo :: String, surgery :: String, alcohol ::  String, caffeine :: String,  hiv :: String,
-hepatitis :: String, syphilis :: String, malaria :: String, verified :: String } deriving Show
+hepatitis :: String, syphilis :: String, malaria :: String, verified :: String } deriving (Show,Eq)
 type ListDonor = [Donor]
 getDonorInfo :: IO [String]
 getDonorInfo =  do
@@ -365,11 +215,115 @@ printAllDonor list = do
 
         recDonorData list
 
-
-divideDonorData (Donor {donor_id = donor_id, name = name, age = age, weight = weight, hemoglobinLevel = hemoglobinLevel, tattoo = tattoo, surgery = surgery,
+lookupParameter (Donor {nik = nik, name = name, age = age, weight = weight, hemoglobinLevel = hemoglobinLevel, tattoo = tattoo, surgery = surgery,
     alcohol = alcohol, caffeine = caffeine, hiv = hiv, hepatitis = hepatitis, syphilis = syphilis, malaria = malaria, verified = verified}) = do
-         -- putStrLn "\n|" ++ donor_id ++ "\t|" ++ name ++ "\t|" ++ age ++ "\t|" ++ weight ++ "\t|" ++ hemoglobinLevel ++ "\t|" ++ tattoo ++ "\t|" ++ surgery ++ "\t|" ++ alcohol ++ "\t|" ++ caffeine ++ "\t|" ++ hiv "\t|" ++ hepatitis ++ "\t|" ++ syphilis ++ "\t|" ++ malaria ++ "\t|" ++ verified ++ "\t|"
-        putStrLn ("\n| " ++ show donor_id ++ "\t| " ++ name ++ "\t| " ++ show age ++ "\t| " ++ show weight ++ "\t\t| " ++ show hemoglobinLevel ++ " \t\t| " ++ tattoo ++ "\t\t| " ++ surgery ++ "\t\t| " ++ alcohol ++ "\t\t| " ++ caffeine ++ "\t\t| " ++ hiv ++ "\t| " ++ hepatitis ++ "\t\t| " ++ syphilis ++ "\t\t| " ++ malaria ++ "\t\t| " ++ verified ++ "\t\t| ")
+    return (nik,(Donor {nik = nik, name = name, age = age, weight = weight, hemoglobinLevel = hemoglobinLevel, tattoo = tattoo, surgery = surgery,
+    alcohol = alcohol, caffeine = caffeine, hiv = hiv, hepatitis = hepatitis, syphilis = syphilis, malaria = malaria, verified = verified}))
+
+printSelectedDonor nik = do 
+    -- replicate 12 '='
+    let a = deleteDonor nik 
+    b <- a
+    printSelectedDonor2 b
+printSelectedDonor2 (Donor {nik = nik, name = name, age = age, weight = weight, hemoglobinLevel = hemoglobinLevel, tattoo = tattoo, surgery = surgery,
+    alcohol = alcohol, caffeine = caffeine, hiv = hiv, hepatitis = hepatitis, syphilis = syphilis, malaria = malaria, verified = verified}) = 
+        do
+            putStrLn "--------------------- Report Data for Selected Donor ---------------------\n" 
+            putStr"Donor Blood Status: " 
+            if verified == "True" then print "Verified" else print "Not Verified"
+            putStr"Donor ID Number (NIK): " 
+            print nik
+            putStr "Donor Name: " 
+            print name 
+            putStr "Donor Age: " 
+            print age
+            putStr "Donor Weight: " 
+            print weight
+            putStr "Donor Hemoglobin Level: " 
+            print hemoglobinLevel
+            putStr "Donor Tattoo Status: " 
+            if tattoo == "True" then print "Has Tattoo" else print "No Tattoo"
+            putStr "Donor Surgery Status: " 
+            if surgery == "True" then print "Had Surgery in 12 Months" else print "Had no Surgery in 12 Months"
+            putStr "Donor Alcohol Status: " 
+            if alcohol == "True" then print "Had Alcohol for the last 24 hours" else print "No Alcohol for the last 24 hours"
+            putStr "Donor Caffeine Status: "
+            if caffeine == "True" then print "Had Caffeine for the last 24 hours" else print "No Caffeine for the last 24 hours" 
+            putStr "Donor HIV Status: " 
+            if hiv == "True" then print "Positive HIV" else print "Negative HIV" 
+            putStr "Donor Hepatitis Status: " 
+            if hepatitis == "True" then print "Positive Hepatitis" else print "Negative Hepatitis" 
+            putStr "Donor Syphilis Status: " 
+            if syphilis == "True" then print "Positive Syphilis" else print "Negative Syphilis" 
+            putStr "Donor Malaria Status: " 
+            if malaria == "True" then print "Positive Malaria" else print "Negative Malaria" 
+
+chooseDonor nik = do
+    arr <- stringToIODonor
+    let arr2 = lookupParameterArray arr
+    return $ lookup nik arr2
+
+
+deleteDonor a = do
+    result <- chooseDonor a
+    case result of 
+        Just a -> return a
+        Nothing -> return $ Donor {nik = 1, name = "asd", age = 20, weight = 50, hemoglobinLevel = 16, tattoo = "True", surgery = "True", alcohol = "True", caffeine = "True", hiv = "True", hepatitis = "True", syphilis = "True", malaria = "True", verified = "True"}
+
+lookupParameterArray [] = []
+lookupParameterArray (x:xs) = do
+    lookupParameter x ++ lookupParameterArray xs
+
+deleteFromDonorDataArray _ [] = []
+deleteFromDonorDataArray x (y:ys) | x == y = deleteFromDonorDataArray x ys
+                                  | otherwise = y : deleteFromDonorDataArray x ys
+
+ioDonorToDeleteDonor var = do
+    io <- deleteDonor var
+    list <- stringToIODonor
+    let res = deleteFromDonorDataArray io list
+    return res
+
+writeDeletedData [] = [] 
+writeDeletedData (x:xs) = x  ++ writeDeletedData xs
+
+writeDeletedDataFinale arr = do
+    -- let concatStr = writeDeletedData arr
+    -- let res = writeFile "database_donor.txt" concatStr 
+    return arr
+
+
+combineDelete var = do
+    arr <- ioDonorToDeleteDonor var
+    let res = dataToString2 arr
+    return res
+
+combineDeleteToWrite var = do
+    arrVar <- combineDelete var
+    -- let concatStr = writeDeletedData arrVar
+    let concatStr = writeDeletedData arrVar
+    appendFile "database_donor.txt" concatStr 
+    putStrLn "Data has been successfully deleted and saved! "
+    -- removeFile "database_donor.txt"
+    -- renameFile "database_donor2.txt" "database_donor3.txt"
+    -- putStrLn test
+
+    
+-- dataToString :: ListDonor -> IO (String) 
+dataToString Donor {nik = nik, name = name, age = age, weight = weight, hemoglobinLevel = hemoglobinLevel, tattoo = tattoo, surgery = surgery,
+    alcohol = alcohol, caffeine = caffeine, hiv = hiv, hepatitis = hepatitis, syphilis = syphilis, malaria = malaria, verified = verified} = 
+        return (show nik ++ " " ++ name ++ " " ++ show age ++ " " ++ show weight ++ " " ++ show hemoglobinLevel ++ " " ++  tattoo ++ " " ++ surgery ++ " " ++
+                alcohol ++ " " ++ caffeine ++ " "  ++ hiv ++ " " ++ hepatitis ++ " " 
+                ++ syphilis  ++ " " ++ malaria ++ " " ++ verified ++ "\n")
+dataToString2 [] = [] 
+dataToString2 (x:xs) = 
+        dataToString x ++ dataToString2 xs
+
+-- writeDeletedDonorDataToDB = do 
+--     writeFile "database_donor.txt" 
+divideDonorData (Donor {nik = nik, name = name, age = age, weight = weight, hemoglobinLevel = hemoglobinLevel, tattoo = tattoo, surgery = surgery,
+    alcohol = alcohol, caffeine = caffeine, hiv = hiv, hepatitis = hepatitis, syphilis = syphilis, malaria = malaria, verified = verified}) = do
+        putStrLn ("\n| " ++ show nik ++ "\t| " ++ name ++ "\t| " ++ show age ++ "\t| " ++ show weight ++ "\t\t| " ++ show hemoglobinLevel ++ " \t\t| " ++ tattoo ++ "\t\t| " ++ surgery ++ "\t\t| " ++ alcohol ++ "\t\t| " ++ caffeine ++ "\t\t| " ++ hiv ++ "\t| " ++ hepatitis ++ "\t\t| " ++ syphilis ++ "\t\t| " ++ malaria ++ "\t\t| " ++ verified ++ "\t\t| ")
 
 
 recDonorData :: [Donor] -> IO ()
@@ -378,7 +332,6 @@ recDonorData (x:xs) = do
     divideDonorData x
     recDonorData xs
 
--- getDonorInfoArr2 :: ListDonor -> IO ()
 getDonorInfoArr2 donor = do
     ioToDonorArr <- stringToIODonor
     let a = donor ++ ioToDonorArr
@@ -397,6 +350,8 @@ getDonorInfo2 = do
 
 getDonorInfo3 = do
     text <- readFile "database_donor.txt"
+    -- handle <- openFile "database_donor.txt" ReadMode
+    -- contents <- hGetContents handle
     let b = lines text
     putStrLn("get string with lines: ")
     -- putStrLn(show b)
@@ -408,3 +363,4 @@ getDonorInfo3 = do
 -- digs :: Integral x => x -> [x]
 -- digs 0 = []
 -- digs x = digs (x `div` 10) ++ [x `mod` 10]
+-- "1 bnvgnf 20 50 16 True True True True True True True True True\n","4 ret 2 2 2 False False False False False False False False False\n"
