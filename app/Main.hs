@@ -11,23 +11,8 @@ import System.IO
 main :: IO ()
 main = mainMenu
 
-data Admin = Admin {email :: String , username :: String , password :: String} 
+data Admin = Admin {email :: String , username :: String , password :: String} deriving Show
 type ListAdmin = [Admin]
-
--- menuPilihan :: ListMurid -> IO()
--- menuPilihan murid = do 
---     putStrLn "Masukkan nama murid: "
---     namaMurid <- getLine
---     print namaMurid 
---     putStrLn "Masukkan kelas: "
---     kelas <- getLine
---     print kelas
---     putStrLn "Masukkan nilai: "
---     nilai <- getLine
---     print nilai
---     let newValue = murid ++ [(Murid {nama = namaMurid, kelas = kelas, nilai = read nilai})]
---     print murid
---     main7 newValue
 
 mainMenu = do
     putStrLn  "==================== Project Blut by Juan Emmanuel Dharmadjaya ===================="
@@ -40,6 +25,8 @@ mainMenu = do
             registerMenu
         "2" -> do
             loginMenu
+        "3" -> do 
+            putStrLn "Thank you for using the system."
 
 userMenu = do
     putStrLn  "(Donor Menu) Pilih menu:"
@@ -56,7 +43,7 @@ userMenu = do
             ioDonorToListDonor 
             userMenu
         "3" -> do
-            loginMenu
+            mainMenu
 insertDonor = do 
     putStrLn "Insert donor ID number (NIK) (Number): "
     nik <- getLine
@@ -85,7 +72,6 @@ insertDonor = do
     putStrLn  "Insert donor malaria status (True/False):"
     donorMalaria <- getLine
 
-    -- if(read donorHemoglogbin < 14 || read donorHemoglogbin > 18 || read donorBloodPressure < 120 || read donorWeight < 45 || read donorAge < 17 || read donorAge > 65 || donorSurgery == "False" || donorTattoo == "False" || donorAlcohol == "False" || donorCaffeine == "False" || donorHiv == "False" || donorHepatitis == "False" || donorSyphilis == "False" || donorMalaria == "False" ) 
     if(read donorHemoglogbin < 14 || read donorHemoglogbin > 18 || read donorWeight < 45 || read donorAge < 17 || read donorAge > 65 || donorSurgery == "False" || donorTattoo == "False" || donorAlcohol == "False" || donorCaffeine == "False" || donorHiv == "False" || donorHepatitis == "False" || donorSyphilis == "False" || donorMalaria == "False" ) 
         then 
             appendFile "./database_donor.txt" (nik ++ " " ++ donorName ++ " " ++ donorAge ++ " " ++ donorWeight ++ " " ++ donorHemoglogbin ++ " " ++  donorTattoo ++ " " ++ donorSurgery ++ " " ++
@@ -123,8 +109,6 @@ donorMenu = do
             donorMenu
         "4" -> do
             userMenu
-        -- "2. Validate your patient information " -> do
-        --     registerPatient
 
 loginMenu = do 
     putStrLn "Please insert your username admin: "
@@ -132,6 +116,17 @@ loginMenu = do
     putStrLn "Please insert your password: "
     passwordAdmin <- getLine
 
+    getArr <- stringToIOAdmin
+    res <- checkCredential usernameAdmin passwordAdmin getArr
+    if(res == False)
+        then do
+            print "Incorrect credential please try again."
+            mainMenu
+    else do
+        putStrLn ""
+        putStrLn " === Successfully logged-in! === "
+        putStrLn ""
+        userMenu
     -- readFile "database_admin.txt"
     -- donor <- readFile "database_donor.txt"
     -- let line_donor = lines donor
@@ -140,17 +135,16 @@ loginMenu = do
     -- putStrLn $ readFile "database_admin.txt"
     -- print $ words admin
     -- let x = words admin
-    userMenu
 
 parseAdmin :: String -> [Admin]
 parseAdmin content = do
     [ email', username', password' ] <- words <$> lines content
-    -- Just age'' <- return $ readMaybe age'
-    -- Just nik'' <- return $ readMaybe nik'
-    -- Just weight'' <- return $ readMaybe weight'
-    -- Just hemoglobinLevel'' <- return $ readMaybe hemoglobinLevel'
-    -- verified'' <- if verified' == "True" || verified' == "true" || verified' == "TRUE" then return True else return False
     return (Admin { email = email', username = username', password = password' })
+
+checkCredential inputUs inputPass Admin {email = em, username = us, password = pass} = do 
+    if (us == inputUs && pass == inputPass) 
+        then return True
+    else return False
 
 getAdminInfoArr [] = []
 getAdminInfoArr (x:xs) = do 
@@ -158,7 +152,7 @@ getAdminInfoArr (x:xs) = do
 
 stringToIOAdmin = do
     stringVar <- getAdminInfo
-    let ioAdmin = getAdminInfoArr stringVar
+    let ioAdmin = head $ getAdminInfoArr stringVar
     return ioAdmin
 
 getAdminInfo = do
@@ -184,25 +178,6 @@ prompt x = do
     putStr "What is your " >> putStrLn (x ++ " ?")
     >> getLine 
     >>= \a -> return (putStrLn ("Your " ++ x ++ " is: " ++ a))
-
--- ioToObject = do 
---     donorObject <- validateDonor2 
---     let object = validateDonor2a donorObject
---     return object
-
-
--- validateDonor2 = do 
---     stringDonor <- getDonorInfo 
---     let a = parseDonor stringDonor
-    -- print a
-
--- validateDonor2 = do 
---     stringDonor <- getDonorInfo 
---     -- return $ parseDonor stringDonor
---     let a = parseDonor stringDonor
---     -- print a
---     return $ parseDonor stringDonor
-
 
 validateDonor2a (x:xs) = x
 
@@ -330,13 +305,9 @@ combineDelete var = do
 
 combineDeleteToWrite var = do
     arrVar <- combineDelete var
-    -- let concatStr = writeDeletedData arrVar
     let concatStr = writeDeletedData arrVar
     writeFile "database_donor.txt" concatStr
     putStrLn " ========== Data has been successfully deleted and saved! ========== "
-    -- removeFile "database_donor.txt"
-    -- renameFile "database_donor2.txt" "database_donor3.txt"
-    -- putStrLn test
 
 dataToString Donor {nik = nik, name = name, age = age, weight = weight, hemoglobinLevel = hemoglobinLevel, tattoo = tattoo, surgery = surgery,
     alcohol = alcohol, caffeine = caffeine, hiv = hiv, hepatitis = hepatitis, syphilis = syphilis, malaria = malaria, verified = verified} = 
