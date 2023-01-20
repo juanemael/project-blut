@@ -174,15 +174,6 @@ registerMenu = do
     print "You have successfully registered!"
     mainMenu
 
-prompt :: String -> IO (IO ())
-prompt x = do 
-    putStr "What is your " >> putStrLn (x ++ " ?")
-    >> getLine 
-    >>= \a -> return (putStrLn ("Your " ++ x ++ " is: " ++ a))
-
-validateDonor2a :: [a] -> a
-validateDonor2a (x:xs) = x
-
 parseDonor :: String -> [Donor]
 parseDonor content = do
     [nik', name', age', weight', hemoglobinLevel', tattoo', surgery', alcohol', caffeine', hiv', hepatitis', syphilis', malaria', verified' ] <- words <$> lines content
@@ -237,7 +228,7 @@ lookupParameter (Donor {nik = nik, name = name, age = age, weight = weight, hemo
 
 printSelectedDonor :: Int -> IO ()
 printSelectedDonor nik = do 
-    let res = deleteDonor nik 
+    let res = selectedResultDonor nik 
     paramDonor <- res
     printSelectedDonor2 paramDonor
 
@@ -283,8 +274,8 @@ chooseDonor nik = do
     let arr2 = lookupParameterArray arr
     return $ lookup nik arr2
 
-deleteDonor :: Int -> IO Donor
-deleteDonor a = do
+selectedResultDonor :: Int -> IO Donor
+selectedResultDonor a = do
     result <- chooseDonor a
     case result of 
         Just a -> return a
@@ -302,7 +293,7 @@ deleteFromDonorDataArray x (y:ys) | x == y = deleteFromDonorDataArray x ys
 
 ioDonorToDeleteDonor :: Int -> IO [Donor]
 ioDonorToDeleteDonor var = do
-    io <- deleteDonor var
+    io <- selectedResultDonor var
     list <- stringToIODonor
     let res = deleteFromDonorDataArray io list
     return res
@@ -347,19 +338,6 @@ recDonorData (x:xs) = do
     divideDonorData x
     recDonorData xs
 
-getDonorInfoArr2 :: [Donor] -> IO [Donor]
-getDonorInfoArr2 donor = do
-    ioToDonorArr <- stringToIODonor
-    let res = donor ++ ioToDonorArr
-    return res
-
-getDonorInfo2 :: IO [String]
-getDonorInfo2 = do
-    text <- readFile "database_donor.txt"
-    let res = words text
-    putStrLn("get string with words: ")
-    return res
-
 getDonorInfo3 :: IO [String]
 getDonorInfo3 = do
     renameFile "database_donor.txt" "database_donor2.txt"
@@ -371,11 +349,3 @@ getDonorInfo3 = do
     writeFile "database_donor.txt" concatStr
     return res
 
-stringToIODonorDatabase2 :: Int -> IO ()
-stringToIODonorDatabase2 var = do
-    stringVar <- getDonorInfo3
-    let ioDonor = getDonorInfoArr stringVar
-    let arrVar = dataToString2 ioDonor
-    let concatStr = writeDeletedData arrVar
-    writeFile "database_donor.txt" concatStr
-    combineDeleteToWrite var
