@@ -20,6 +20,8 @@ mainMenu = do
     putStrLn  "(Main Menu) Pilih menu:"
     putStrLn "1. Register Account"
     putStrLn "2. Login Account"
+    putStrLn "---------------------------------------"
+    putStrLn "Please enter the option: "
     menuOption <- getLine
     case menuOption of 
         "1" -> do
@@ -94,7 +96,7 @@ donorMenu = do
     putStrLn  "3. Delete Donor Information"
     putStrLn  "4. Back"
     putStrLn "---------------------------------------------"
-    putStrLn "Insert your option (1,2,3): "
+    putStrLn "Insert your option (1,2,3,4): "
     menuOption <- getLine
     case menuOption of
         "1" -> do
@@ -168,8 +170,9 @@ registerMenu = do
     usernameAdmin <- getLine
     putStrLn "Please create your password: "
     passwordAdmin <- getLine
-    writeFile "./app/database_admin.txt" (emailAdmin ++ " " ++ usernameAdmin ++ " " ++ passwordAdmin)
+    writeFile "database_admin.txt" (emailAdmin ++ " " ++ usernameAdmin ++ " " ++ passwordAdmin)
     print "You have successfully registered!"
+    mainMenu
 
 prompt :: String -> IO (IO ())
 prompt x = do 
